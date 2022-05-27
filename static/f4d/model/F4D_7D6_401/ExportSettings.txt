@@ -1,0 +1,64 @@
+Do occlusion culling: TRUE
+Do scale: FALSE
+Scale factor: 1.000000
+Flip Y TexCoords: FALSE
+Save vertex-colors if exist: FALSE
+Lowest octree size: 25.000000
+Interior occlusion culling camera step: 2.200000
+Exterior occlusion culling camera step: 20.000000
+Interior occlusion culling octree depth: 2
+Exterior occlusion culling octree depth: 1
+
+NET-SURFACES 
+Skin Level: 1
+LOD: 2
+Max angle degree triangles normals desviation allowed: 30.000000
+Max angle degree frontier edges direction desviation allowed: 30.000000
+Max range skirt on triangles: 0.100000
+Max range skirt on frontier triangles: 0.100000
+Net cell size: 0.040000
+Lowest octree dividing box size: 3.000000
+Individual NetSurfacesTextures In PixelsWidth: 48
+Individual NetSurfacesTextures In PixelsHeight: 48
+
+LOD: 3
+Max angle degree triangles normals desviation allowed: 30.000000
+Max angle degree frontier edges direction desviation allowed: 30.000000
+Max range skirt on triangles: 0.250000
+Max range skirt on frontier triangles: 0.250000
+Net cell size: 0.100000
+Lowest octree dividing box size: 5.000000
+Individual NetSurfacesTextures In PixelsWidth: 48
+Individual NetSurfacesTextures In PixelsHeight: 48
+
+LOD: 4
+Max angle degree triangles normals desviation allowed: 30.000000
+Max angle degree frontier edges direction desviation allowed: 30.000000
+Max range skirt on triangles: 0.750000
+Max range skirt on frontier triangles: 0.750000
+Net cell size: 0.300000
+Lowest octree dividing box size: 10.000000
+Individual NetSurfacesTextures In PixelsWidth: 32
+Individual NetSurfacesTextures In PixelsHeight: 32
+
+LOD: 5
+Max angle degree triangles normals desviation allowed: 30.000000
+Max angle degree frontier edges direction desviation allowed: 30.000000
+Max range skirt on triangles: 1.500000
+Max range skirt on frontier triangles: 1.500000
+Net cell size: 0.600000
+Lowest octree dividing box size: 20.000000
+Individual NetSurfacesTextures In PixelsWidth: 16
+Individual NetSurfacesTextures In PixelsHeight: 16
+
+GUID: abcdefghi
+version: 0.0.1
+"longitude": 127.285471,
+"latitude": 36.474703,
+"height": 73.135185,
+min-x: -18.671875
+min-y: -15.500000
+min-z: -45.863564
+max-x: 18.671875
+max-y: 15.500000
+max-z: 45.863564

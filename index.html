@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="stylesheet" href="/js/cesium/Widgets/widgets.css" />
+    <style>
+        html, body { margin:0; padding:0; width: 100%; height:100%; background-color: #fff;}
+        #magoContainer {
+            height: 100%;
+            background-color: #eee;
+            width: 100%;
+        }
+        button.a {
+            position:absolute;
+            z-index: 1000;
+        }
+        button.a.b {
+            margin-left:50px;
+        }
+        button.a.c {
+            margin-left:150px;
+        }
+    </style>
+</head>
+<body>
+    <div id="magoContainer">
+        <button type="button" class="a" id="button-run" onclick="run();">지상</button>
+        <button type="button" class="a b" id="button-flight" onclick="flight();">등속등고비행</button>
+        <button type="button" class="a c" id="button-flight" onclick="after();">감속착륙비행</button>
+    </div>
+    <script src="/js/cesium/Cesium.js"></script>
+    <script src="/js/mago3d/mago3d.js"></script>
+    <script src="/js/Mago3dWrapper.js"></script>
+    <script src="https://unpkg.com/terraformer@1.0.7"></script>
+    
+    <script>
+        const projectId = 'traking-test';
+        const projectId1 = 'tracking-test1';
+        let instanceId;
+        let instanceId1;
+        const initiallizeCallbackFunction = function(instance) {
+            const magoManager = instance.getMagoManager();
+            
+            instanceId = this.createGuid();
+            this.initStaticModel({
+                projectId,
+                instanceId,
+                projectFolderName : 'model',
+                buildingFolderName : 'F4D_tank',
+                longitude : 126.5454092573697,
+                latitude :  33.37971157108922,
+                height : 500
+            });
+            
+            instanceId1 = this.createGuid();
+            this.initStaticModel({
+                projectId: projectId1,
+                instanceId: instanceId1,
+                projectFolderName : 'model',
+                buildingFolderName : 'F4D_airplane',
+                longitude : 126.5454092573697, //제주도
+                latitude : 33.37971157108922,
+                height : 500
+            });
+        }
+
+        const mago3dWrapper = new Mago3dWrapper(initiallizeCallbackFunction);
+        mago3dWrapper.start();
+
+        const fetchPath = async function(type = 'run') {
+            return await fetch(`./static/${(type==='run') ? 'car':'flight'}-path.json`)
+                        .then(response => response.json())
+        }
+
+        const exportFirstLineString = function(geojson) {
+            const featureCollection = new Terraformer.Primitive(geojson);
+            const lineStrings = [];
+            featureCollection.forEach(item => {
+                if(lineStrings.length > 0) return;
+                const feature = new Terraformer.Primitive(item);
+                const {geometry} = feature;
+
+                if(!geometry || geometry.type !== 'LineString') return;
+
+                const lineString = new Terraformer.LineString(geometry);
+                lineStrings.push(lineString);
+            });
+            
+            return Promise.resolve(lineStrings[0]);
+        }
+
+        const interpolate = function(lineString) {
+            let interpolateds = [];
+            const {coordinates} = lineString;
+            
+            for(let i=0,len=coordinates.length; i<len-1; i++) {
+                const start = coordinates[i];
+                const end = coordinates[i+1];
+
+                let interpolatedPoints = mago3dWrapper.getInterpolatedPoints(start, end, 20);
+
+                if(i < len-2) interpolatedPoints.pop();
+
+                interpolateds = interpolateds.concat(interpolatedPoints);
+            }
+            
+            return Promise.resolve(interpolateds);
+        }
+        const after = function() {
+            alert('준비중입니다.');
+            return;
+        }
+
+        const run = function() {
+            if(!mago3dWrapper.readyToUse) {
+                alert('잠시만 있다해보세요');
+                return;
+            }
+            
+            fetchPath('run')
+            .then(path => exportFirstLineString(path))
+            .then(lineString => interpolate(lineString))
+            .then(interpolateds => 
+                Promise.resolve(
+                    interpolateds.map(
+                        ({longitude:degreeLon, latitude:degreeLat}) => 
+                            Cesium.Cartographic.fromDegrees(degreeLon, degreeLat)
+                    )
+                )
+            )
+            .then(cartographics => Cesium.sampleTerrain(mago3dWrapper.getTerrainProvider(), 12, cartographics))
+            .then(sampling => 
+                Promise.resolve(
+                    sampling.map(
+                        ({longitude, latitude, height}) => 
+                            new Mago3D.GeographicCoord(Cesium.Math.toDegrees(longitude),Cesium.Math.toDegrees(latitude), height)
+                    )
+                )
+            )
+            .then(complete => {
+                mago3dWrapper.drive({
+                    projectId,
+                    instanceId,
+                    path: new Mago3D.Path3D(complete)
+                });
+            })
+            .catch(err => console.error(err));
+            
+        }
+
+        const flight = function() {
+            if(!mago3dWrapper.readyToUse) {
+                alert('잠시만 있다해보세요');
+                return;
+            }
+            
+            fetchPath('flight')
+            .then(path => exportFirstLineString(path))
+            .then(({coordinates}) => 
+                Promise.resolve(
+                    coordinates.map(([lon,lat], index) => {
+                        return new Mago3D.GeographicCoord(lon, lat, 2500)
+                    })
+                )
+            )
+            .then(complete => {
+                mago3dWrapper.flight({
+
+                    projectId: projectId1,
+
+                    instanceId: instanceId1,
+
+                    path: new Mago3D.Path3D(complete)
+
+                });
+            })
+            .catch(err => console.error(err));
+        }
+        
+    </script>
+</body>
+</html>

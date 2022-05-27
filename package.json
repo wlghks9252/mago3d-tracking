@@ -1,0 +1,23 @@
+{
+  "name": "mago3djs-tracking",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx http-server ./ -p 3000 -c -1 -o ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kwunjaehyun/mago3djs-tracking.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kwunjaehyun/mago3djs-tracking/issues"
+  },
+  "homepage": "https://github.com/kwunjaehyun/mago3djs-tracking#readme",
+  "dependencies": {
+    "http-server": "^14.1.0"
+  }
+}
